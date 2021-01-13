@@ -8,7 +8,7 @@ import os
 '''Fetching Polyline from mapquest'''
 
 # Token from Mapquest
-key = os.environ.get('mapquest')
+key = os.environ.get('MAPQUEST')
 
 #Source
 source = 'Dallas, TX'
@@ -36,7 +36,7 @@ polyline = Poly.encode(coordinate_list)
 '''Calling Tollguru API'''
 
 #API key for Tollguru
-Tolls_Key= os.environ.get('tollguru')
+Tolls_Key= os.environ.get('TOLLGURU')
 
 #Tollguru querry url
 Tolls_URL = 'https://dev.tollguru.com/v1/calc/route'
