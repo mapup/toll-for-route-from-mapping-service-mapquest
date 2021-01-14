@@ -25,7 +25,7 @@ response=requests.get(url).json()
 coordinate_list=[]
 for i in range(0,len(response['route']['shape']['shapePoints']),2):
                coordinate_list.append((response['route']['shape']['shapePoints'][i],response['route']['shape']['shapePoints'][i+1]))
-
+# 
 
 #We will encode these coordinates(lat-lon) using encode function from polyline module to generate polyline
 polyline = Poly.encode(coordinate_list)
