@@ -27,28 +27,26 @@ With this in place, make a GET request: http://www.mapquestapi.com/directions/v2
 
 //extracting polyline from the JSON response..
 $data_mapquest = json_decode($response, true);
-$data_new = $data_mapquest['routes'];
-$new_data = $data_new['0'];
-$legs=$new_data['legs'];
-$new_legs=$legs['0'];
-$new_leg_points=$new_legs['points'];
+$shape_points=$data_mapquest['route']['shape']['shapePoints'];
 
 //polyline..
 require_once(__DIR__.'/Polyline.php');
-$polyline_mapquest = Polyline::encode($new_leg_points);
+$polyline_mapquest = Polyline::encode($shape_points);
+
 
 ```
 
 ```php
 
-/using mapquestmaps API
+//using mapquestmaps API
 
+//Source and Destination Coordinates
 $SOURCE = '1717NHarwoodSt,Dallas,TX75201,UnitedStates';
-//Addison, Texas
 $DESTINATION = '15055InwoodRd,Addison,TX75001,UnitedStates';
 
 //mapquest api key..
-$key = 'mapquestapi';
+$key = 'mapquest.api.key';
+
 $url='http://www.mapquestapi.com/directions/v2/route?key='.$key.'&from='.$SOURCE.'&to='.$DESTINATION.'&fullShape=true';
 
 //connection..
@@ -60,7 +58,7 @@ curl_setopt($mapquest, CURLOPT_SSL_VERIFYPEER, false);
 curl_setopt($mapquest, CURLOPT_URL, $url);
 curl_setopt($mapquest, CURLOPT_RETURNTRANSFER, true);
 
-//getting response from googleapis..
+//getting response from mapquestapis..
 $response = curl_exec($mapquest);
 $err = curl_error($mapquest);
 
@@ -73,16 +71,13 @@ if ($err) {
 }
 
 //extracting polyline from the JSON response..
-//extracting polyline from the JSON response..
 $data_mapquest = json_decode($response, true);
-//print_r(array_keys($data_mapquest));
-$data_new = $data_mapquest['route'];
-$new_data = $data_new['shape'];
-$shape_points=$new_data['shapePoints'];
-//print_r($shape_points);
+$shape_points=$data_mapquest['route']['shape']['shapePoints'];
+
 //polyline..
 require_once(__DIR__.'/Polyline.php');
 $polyline_mapquest = Polyline::encode($shape_points);
+
 
 ```
 
@@ -143,10 +138,8 @@ if ($err) {
 }
 
 //response from tollguru..
-// var_dump(json_decode($response, true));
-
-//$data = var_dump(json_decode($response, true));
-//print_r($data);
+$data = var_dump(json_decode($response, true));
+print_r($data);
 
 
 ```
