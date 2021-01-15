@@ -2,14 +2,14 @@
 //using mapquestmaps API
 
 //Source and Destination Coordinates
-//Dallas, TX
 $SOURCE = '1717NHarwoodSt,Dallas,TX75201,UnitedStates';
-//Addison, Texas
 $DESTINATION = '15055InwoodRd,Addison,TX75001,UnitedStates';
 
 //mapquest api key..
-$key = 'Nia5zuOUAjquY8hOJP33BjoneNWynTNM';
+$key = 'mapquest.api.key';
+
 $url='http://www.mapquestapi.com/directions/v2/route?key='.$key.'&from='.$SOURCE.'&to='.$DESTINATION.'&fullShape=true';
+
 //connection..
 $mapquest = curl_init();
 
@@ -30,18 +30,15 @@ if ($err) {
 } else {
 	  echo "200 : OK\n";
 }
+
 //extracting polyline from the JSON response..
 $data_mapquest = json_decode($response, true);
-//print_r(array_keys($data_mapquest));
-$data_new = $data_mapquest['route'];
-$new_data = $data_new['shape'];
-$shape_points=$new_data['shapePoints'];
-//print_r($shape_points);
+$shape_points=$data_mapquest['route']['shape']['shapePoints'];
+
 //polyline..
 require_once(__DIR__.'/Polyline.php');
 $polyline_mapquest = Polyline::encode($shape_points);
 
-//echo $polyline_mapquest;
 //using tollguru API..
 $curl = curl_init();
 
@@ -69,7 +66,7 @@ CURLOPT_CUSTOMREQUEST => "POST",
 CURLOPT_POSTFIELDS => $encode_postData,
 CURLOPT_HTTPHEADER => array(
 				      "content-type: application/json",
-				      "x-api-key: G9ttbFqbt4hHhHQ3HrRrQRrTJLLDtF2F"),
+				      "x-api-key: tollguru.api.key"),
 ));
 
 $response = curl_exec($curl);
@@ -83,9 +80,6 @@ if ($err) {
 }
 
 //response from tollguru..
- var_dump(json_decode($response, true));
-
-//$data = var_dump(json_decode($response, true));
-//print_r($data);
-
+$data = var_dump(json_decode($response, true));
+print_r($data);
 ?>
