@@ -1,38 +1,40 @@
 const request = require("request");
+const polyline = require("polyline");
 
-// Token from mapbox
-const token = process.env.MAPBOX_TOKEN;
+// REST API key from Mapquest
+const key = process.env.MAPQUEST_KEY
 const tollguruKey = process.env.TOLLGURU_KEY;
 
-// Dallas, TX
-const source = {
-    longitude: '-96.7970',
-    latitude: '32.7767',
-}
+const source = 'Dallas, TX'
 
-// New York, NY
-const destination = {
-    longitude: '-74.0060',
-    latitude: '40.7128'
-};
+const destination = 'New York, NY';
 
-const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${source.longitude},${source.latitude};${destination.longitude},${destination.latitude}?geometries=polyline&access_token=${token}&overview=full`
+const url = `http://www.mapquestapi.com/directions/v2/route?key=${key}&from=${source}&to=${destination}&fullShape=true`;
+
 
 const head = arr => arr[0];
-// JSON path "$..geometry"
-const getGeometry = body => body.routes.map(x => x.geometry);
-const getPolyline = body => head(getGeometry(JSON.parse(body)));
+const flatten = (arr, x) => arr.concat(x);
+
+// JSON path "$..shapePoints"
+const getPoints = body => body.route.shape.shapePoints.reduce((arr, x, i, origArr) => i % 2 == 0 ? [...arr, [origArr[i], origArr[i+1]]] : arr, [])
+
+const getPolyline = body => polyline.encode(getPoints(JSON.parse(body)));
 
 const getRoute = (cb) => request.get(url, cb);
 
-//const handleRoute = (e, r, body) => console.log(getPolyline(body));
-//getRoute(handleRoute);
+//const handleRoute = (e, r, body) => console.log(getPolyline(body))
+
+//getRoute(handleRoute)
+//return;
 
 const tollguruUrl = 'https://dev.tollguru.com/v1/calc/route';
 
 const handleRoute = (e, r, body) =>  {
-  console.log(body)
+
+  console.log(body);
   const _polyline = getPolyline(body);
+  console.log(_polyline);
+
   request.post(
     {
       url: tollguruUrl,
@@ -40,10 +42,7 @@ const handleRoute = (e, r, body) =>  {
         'content-type': 'application/json',
         'x-api-key': tollguruKey
       },
-      body: JSON.stringify({
-        source: "mapbox",
-        polyline: _polyline,
-      })
+      body: JSON.stringify({ source: "mapquest", polyline: _polyline })
     },
     (e, r, body) => {
       console.log(e);
