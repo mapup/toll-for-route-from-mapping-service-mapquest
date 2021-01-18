@@ -10,7 +10,7 @@
 * Login to Mapquest Developer Network
 * Go to https://developer.mapquest.com/user/me/apps
 * You will be presented with a default key
-* You are also create additional keys, as per you requirements
+* You are also create additional keys, as per you requirements.
 
 
 With this in place, make a GET request: http://www.mapquestapi.com/directions/v2/route?key=${key}&from=${source}&to=${destination}&fullShape=true
@@ -39,8 +39,8 @@ def get_polyline_from_mapquest(source, destination):
     for i in range(0,len(response['route']['shape']['shapePoints']),2):
                    coordinate_list.append((response['route']['shape']['shapePoints'][i],response['route']['shape']['shapePoints'][i+1]))
     #We will encode these coordinates(lat-lon) using encode function from polyline module to generate polyline
-    polyline = poly.encode(coordinate_list)
-    return(polyline)
+    polyline_from_mapquest= poly.encode(coordinate_list)
+    return(polyline_from_mapquest)
 ```
 
 Note:
