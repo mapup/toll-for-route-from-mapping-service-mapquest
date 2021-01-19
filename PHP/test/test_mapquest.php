@@ -5,7 +5,7 @@
 function getPolyline($from, $to){
 //mapquest api key..
 $key = 'mapquest_api_key';
-$url='http://www.mapquestapi.com/directions/v2/route?key='.$key.'&from='.$from.'&to='.$to.'&fullShape=true';
+$url='http://www.mapquestapi.com/directions/v2/route?key='.$key.'&from='.urlencode($from).'&to='.urlencode($to).'&fullShape=true';
 //connection..
 $mapquest = curl_init();
 

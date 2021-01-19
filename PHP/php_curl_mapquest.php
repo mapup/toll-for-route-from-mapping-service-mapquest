@@ -8,7 +8,7 @@ $DESTINATION = '15055InwoodRd,Addison,TX75001,UnitedStates';
 //mapquest api key..
 $key = 'mapquest.api.key';
 
-$url='http://www.mapquestapi.com/directions/v2/route?key='.$key.'&from='.$SOURCE.'&to='.$DESTINATION.'&fullShape=true';
+$url='http://www.mapquestapi.com/directions/v2/route?key='.$key.'&from='.urlencode($SOURCE).'&to='.urlencode($DESTINATION).'&fullShape=true';
 
 //connection..
 $mapquest = curl_init();
