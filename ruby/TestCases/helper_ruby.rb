@@ -10,6 +10,15 @@ TOLLGURU_API_KEY = os.environ.get("TOLLGURU_API_KEY")
 TOLLGURU_API_URL = "https://apis.tollguru.com/toll/v2"
 POLYLINE_ENDPOINT = "complete-polyline-from-mapping-service"
 
+# Explore https://tollguru.com/toll-api-docs to get the best of all the parameters that tollguru has to offer
+request_parameters = {
+  "vehicle": {
+    "type": "2AxlesAuto",
+  },
+  # Visit https://en.wikipedia.org/wiki/Unix_time to know the time format
+  "departure_time": "2021-01-05T09:46:08Z",
+}
+
 def get_toll_rate(from,to)
     # Source Details 
     source = from
@@ -27,7 +36,7 @@ def get_toll_rate(from,to)
     # Sending POST request to TollGuru
     TOLLGURU_URL = "#{TOLLGURU_API_URL}/#{POLYLINE_ENDPOINT}" 
     headers = {'content-type' => 'application/json', 'x-api-key' => TOLLGURU_API_KEY}
-    body = {'source' => "mapbox", 'polyline' => google_encoded_polyline, 'vehicleType' => "2AxlesAuto", 'departure_time' => "2021-01-05T09:46:08Z"}
+    body = {'source': "mapbox", 'polyline': google_encoded_polyline, **request_parameters}
     tollguru_response = HTTParty.post(tollguru_url,:body => body.to_json, :headers => headers)
     begin
         toll_body = JSON.parse(tollguru_response.body)    
