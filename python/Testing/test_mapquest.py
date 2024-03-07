@@ -11,9 +11,16 @@ TOLLGURU_API_KEY = os.environ.get("TOLLGURU_API_KEY")
 TOLLGURU_API_URL = "https://apis.tollguru.com/toll/v2"
 POLYLINE_ENDPOINT = "complete-polyline-from-mapping-service"
 
-"""Fetching Polyline from mapquest"""
+# Explore https://tollguru.com/toll-api-docs to get best of all the parameter that TollGuru has to offer
+request_parameters = {
+    "vehicle": {
+        "type": "2AxlesAuto"
+    },
+    # Visit https://en.wikipedia.org/wiki/Unix_time to know the time format
+    "departure_time": "2021-01-05T09:46:08Z",
+}
 
-
+# Fetching Polyline from mapquest
 def get_polyline_from_mapquest(source, destination):
     url = "{a}?key={b}&from={c}&to={d}&fullShape=true".format(
         a=MAPQUEST_API_URL,
@@ -21,7 +28,7 @@ def get_polyline_from_mapquest(source, destination):
         c=source,
         d=destination,
     )
-    # converting the response to json
+    # Converting the response to JSON
     response = requests.get(url).json()
     # Extracting all the coordinates and making lat-lon pair
     coordinate_list = []
@@ -32,27 +39,24 @@ def get_polyline_from_mapquest(source, destination):
                 response["route"]["shape"]["shapePoints"][i + 1],
             )
         )
-    # We will encode these coordinates(lat-lon) using encode function from polyline module to generate polyline
+    # We will encode these coordinates (lat-lon) using encode function from polyline module to generate polyline
     polyline_from_mapquest = poly.encode(coordinate_list)
     return polyline_from_mapquest
 
 
-"""Calling Tollguru API"""
-
-
+# Calling TollGuru API
 def get_rates_from_tollguru(polyline):
-    # Tollguru querry url
+    # TollGuru query URL
     Tolls_URL = f"{TOLLGURU_API_URL}/{POLYLINE_ENDPOINT}"
-    # Tollguru resquest parameters
+    # TollGuru request parameters
     headers = {"Content-type": "application/json", "x-api-key": TOLLGURU_API_KEY}
     params = {
-        # Explore https://tollguru.com/developers/docs/ to get best of all the parameter that tollguru has to offer
+        # Explore https://tollguru.com/developers/docs/ to get best of all the parameter that TollGuru has to offer
         "source": "mapquest",
-        "polyline": polyline,  # this is the encoded polyline that we made
-        "vehicleType": "2AxlesAuto",  #'''Visit https://tollguru.com/developers/docs/#vehicle-types to know more options'''
-        "departure_time": "2021-01-05T09:46:08Z",  #'''Visit https://en.wikipedia.org/wiki/Unix_time to know the time format'''
+        "polyline": polyline,  # This is the encoded polyline that we made
+        **request_parameters,
     }
-    # Requesting Tollguru with parameters
+    # Requesting TollGuru with parameters
     response_tollguru = requests.post(
         Tolls_URL, json=params, headers=headers, timeout=200
     ).json()
