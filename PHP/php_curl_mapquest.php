@@ -9,8 +9,8 @@ $TOLLGURU_API_URL = "https://apis.tollguru.com/toll/v2";
 $POLYLINE_ENDPOINT = "complete-polyline-from-mapping-service";
 
 // Source and Destination Coordinates
-$source = 'Philadelphia, PA';
-$destination = 'New York, NY';
+$source = 'Philadelphia, PA, USA';
+$destination = 'New York, NY, USA';
 
 // Explore https://tollguru.com/toll-api-docs to get the best of all the parameters that Tollguru has to offer
 $request_parameters = array(
