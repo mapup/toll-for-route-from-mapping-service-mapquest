@@ -8,8 +8,9 @@ const TOLLGURU_API_KEY = process.env.TOLLGURU_API_KEY;
 const TOLLGURU_API_URL = "https://apis.tollguru.com/toll/v2";
 const POLYLINE_ENDPOINT = "complete-polyline-from-mapping-service";
 
-const source = "Philadelphia, PA";
-const destination = "New York, NY";
+// From and To locations (country name required)
+const source = "Philadelphia, PA, USA";
+const destination = "New York, NY, USA";
 
 // Explore https://tollguru.com/toll-api-docs to get the best of all the parameters that tollguru has to offer
 const requestParameters = {
