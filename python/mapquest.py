@@ -25,26 +25,38 @@ request_parameters = {
 
 # Fetching polyline from MapQuest
 def get_polyline_from_mapquest(source, destination):
-    url = "{a}?key={b}&from={c}&to={d}&fullShape=true".format(
-        a=MAPQUEST_API_URL,
-        b=MAPQUEST_API_KEY,
-        c=source,
-        d=destination,
-    )
-    # Converting the response to JSON
-    response = requests.get(url).json()
-    # Extracting all the coordinates and making lat-lon pair
-    coordinate_list = []
-    for i in range(0, len(response["route"]["shape"]["shapePoints"]), 2):
-        coordinate_list.append(
-            (
-                response["route"]["shape"]["shapePoints"][i],
-                response["route"]["shape"]["shapePoints"][i + 1],
-            )
+    try:
+        url = "{a}?key={b}&from={c}&to={d}&fullShape=true".format(
+            a=MAPQUEST_API_URL,
+            b=MAPQUEST_API_KEY,
+            c=source,
+            d=destination,
         )
-    # We will encode these coordinates(lat-lon) using encode function from polyline module to generate polyline
-    polyline_from_mapquest = poly.encode(coordinate_list)
-    return polyline_from_mapquest
+        # Making the request to MapQuest API
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+
+        # Converting the response to JSON
+        response_json = response.json()
+        
+        # Extracting all the coordinates and making lat-lon pair
+        coordinate_list = []
+        for i in range(0, len(response_json["route"]["shape"]["shapePoints"]), 2):
+            coordinate_list.append(
+                (
+                    response_json["route"]["shape"]["shapePoints"][i],
+                    response_json["route"]["shape"]["shapePoints"][i + 1],
+                )
+            )
+        # We will encode these coordinates(lat-lon) using encode function from polyline module to generate polyline
+        polyline_from_mapquest = poly.encode(coordinate_list)
+        return polyline_from_mapquest
+    except requests.RequestException as e:
+        print("Error in making the request:", e)
+        return None
+    except KeyError as e:
+        print("Error in parsing the response:", e)
+        return None
 
 # Calling Tollguru API
 def get_rates_from_tollguru(polyline):
