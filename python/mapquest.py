@@ -11,8 +11,8 @@ TOLLGURU_API_KEY = os.environ.get("TOLLGURU_API_KEY")
 TOLLGURU_API_URL = "https://apis.tollguru.com/toll/v2"
 POLYLINE_ENDPOINT = "complete-polyline-from-mapping-service"
 
-source = "Philadelphia, PA"
-destination = "New York, NY"
+source = "Philadelphia, PA, USA"
+destination = "New York, NY, USA"
 
 # Explore https://tollguru.com/toll-api-docs to get best of all the parameter that TollGuru has to offer
 request_parameters = {
