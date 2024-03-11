@@ -1,78 +1,93 @@
 <?php
 //using mapquestmaps API
 
-//from & to location..
+$MAPQUEST_API_KEY = getenv('MAPQUEST_API_KEY');
+$MAPQUEST_API_URL = "http://www.mapquestapi.com/directions/v2/route";
+
+$TOLLGURU_API_KEY = getenv('TOLLGURU_API_KEY');
+$TOLLGURU_API_URL = "https://apis.tollguru.com/toll/v2";
+$POLYLINE_ENDPOINT = "complete-polyline-from-mapping-service";
+
+// Explore https://tollguru.com/toll-api-docs to get the best of all the parameters that Tollguru has to offer
+$request_parameters = array(
+  "vehicle" => array(
+      "type" => "2AxlesAuto"
+  ),
+  // Visit https://en.wikipedia.org/wiki/Unix_time to know the time format
+  "departure_time" => "2021-01-05T09:46:08Z"
+);
+
+// From and To locations
 function getPolyline($from, $to){
-//mapquest api key..
-$key = 'mapquest_api_key';
-$url='http://www.mapquestapi.com/directions/v2/route?key='.$key.'&from='.urlencode($from).'&to='.urlencode($to).'&fullShape=true';
-//connection..
-$mapquest = curl_init();
+  global $MAPQUEST_API_KEY, $MAPQUEST_API_URL;
 
-curl_setopt($mapquest, CURLOPT_SSL_VERIFYHOST, false);
-curl_setopt($mapquest, CURLOPT_SSL_VERIFYPEER, false);
+  $url=$MAPQUEST_API_URL.'?key='.$MAPQUEST_API_KEY.'&from='.urlencode($from).'&to='.urlencode($to).'&fullShape=true';
+  //connection..
+  $mapquest = curl_init();
 
-curl_setopt($mapquest, CURLOPT_URL, $url);
-curl_setopt($mapquest, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($mapquest, CURLOPT_SSL_VERIFYHOST, false);
+  curl_setopt($mapquest, CURLOPT_SSL_VERIFYPEER, false);
 
-//getting response from mapquestapis..
-$response = curl_exec($mapquest);
-$err = curl_error($mapquest);
+  curl_setopt($mapquest, CURLOPT_URL, $url);
+  curl_setopt($mapquest, CURLOPT_RETURNTRANSFER, true);
 
-curl_close($mapquest);
+  // Getting response from MapQuest API
+  $response = curl_exec($mapquest);
+  $err = curl_error($mapquest);
 
-if ($err) {
-	  echo "cURL Error #:" . $err;
-} else {
-	  echo "200 : OK\n";
+  curl_close($mapquest);
+
+  if ($err) {
+    echo "cURL Error #:" . $err;
+  } else {
+    echo "200 : OK\n";
+  }
+  // Extracting polyline from the JSON response
+  $data_mapquest = json_decode($response, true);
+  $shape_points=$data_mapquest['route']['shape']['shapePoints'];
+
+  // Polyline
+  require_once(__DIR__.'/Polyline.php');
+  $p_mapquest = Polyline::encode($shape_points);
+
+  return $p_mapquest;
 }
-//extracting polyline from the JSON response..
-$data_mapquest = json_decode($response, true);
-$shape_points=$data_mapquest['route']['shape']['shapePoints'];
 
-//polyline..
-require_once(__DIR__.'/Polyline.php');
-$p_mapquest = Polyline::encode($shape_points);
-
-return $p_mapquest;
-}
-
-
-//calling getPolyline function
-//testing starts here...
+// Calling getPolyline function
+// Testing starts here
 require_once(__DIR__.'/test_location.php');
 foreach ($locdata as $item) {
 $polyline_mapquest = getPolyline($item['from'], $item['to']);
 
-
-//using tollguru API..
+// Using TollGuru API..
 $curl = curl_init();
 
 curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
 curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 
 $postdata = array(
-	"source" => "gmaps",
-	"polyline" => $polyline_mapquest
+	"source" => "mapquest",
+	"polyline" => $polyline_mapquest,
+  ...$request_parameters
 );
 
-//json encoding source and polyline to send as postfields..
+// JSON encoding source and polyline to send as postfields
 $encode_postData = json_encode($postdata);
 
 curl_setopt_array($curl, array(
-CURLOPT_URL => "https://dev.tollguru.com/v1/calc/route",
-CURLOPT_RETURNTRANSFER => true,
-CURLOPT_ENCODING => "",
-CURLOPT_MAXREDIRS => 10,
-CURLOPT_TIMEOUT => 30,
-CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-CURLOPT_CUSTOMREQUEST => "POST",
+  CURLOPT_URL => $TOLLGURU_API_URL . "/" . $POLYLINE_ENDPOINT,
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "POST",
 
-// sending mapquest polyline to tollguru
-CURLOPT_POSTFIELDS => $encode_postData,
-CURLOPT_HTTPHEADER => array(
-				      "content-type: application/json",
-				      "x-api-key: tollguru_api_key"),
+  // Sending MapQuest polyline to TollGuru
+  CURLOPT_POSTFIELDS => $encode_postData,
+  CURLOPT_HTTPHEADER => array(
+    "content-type: application/json",
+    "x-api-key: " . $TOLLGURU_API_KEY),
 ));
 
 $response = curl_exec($curl);
@@ -85,7 +100,7 @@ if ($err) {
 	  echo "200 : OK\n";
 }
 
-//response from tollguru..
+// Response from TollGuru
 $data = json_decode($response, true);
 
 $tag = $data['route']['costs']['tag'];
